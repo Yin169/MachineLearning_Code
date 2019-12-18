@@ -1,6 +1,7 @@
 import heapq
 import numpy as np
 import matplotlib.pyplot as plt
+import sys
 
 class Node(object):
     def __init__(self, axis=None, val=[], left=None, right=None):
@@ -17,18 +18,20 @@ class KDtree(object):
         self.root = self.fit(point)
 
     def fit(self, point, depth=0):
-        if len(point) <= 1:
+        if len(point) <= 0:
             return None
         axis = depth % self.dim
         array = [p[axis] for p in point]
+        print(len(point))
         median = self.find_median(0, len(array)-1, array, len(array)//2)
         index = array.index(median)
+
         # left = [i for i in point if i[axis] < median]
         # right = [i for i in point if i[axis] > median]
         return Node(axis = axis,
                     val = point[index],
                     left = self.fit(point=point[:index], depth=depth+1),
-                    right = self.fit(point=point[index:], depth=depth+1))
+                    right = self.fit(point=point[index+1:], depth=depth+1))
 
     def find_median(self, l, r, a, index):
         i,j = l,r
@@ -87,8 +90,8 @@ def gen_data(x1, x2):
 
 
 def load_data():
-    x1_train = np.linspace(0, 50, 50)
-    x2_train = np.linspace(-10, 10, 50)
+    x1_train = np.linspace(0, 50, 60)
+    x2_train = np.linspace(-10, 10, 60)
     data_train = [[x1, x2, gen_data(x1, x2) + np.random.random(1)[0] - 0.5] for x1, x2 in zip(x1_train, x2_train)]
     x1_test = np.linspace(0, 50, 100) + np.random.random(100) * 0.5
     x2_test = np.linspace(-10, 10, 100) + 0.02 * np.random.random(100)
