@@ -25,13 +25,12 @@ class KDtree(object):
         print(len(point))
         median = self.find_median(0, len(array)-1, array, len(array)//2)
         index = array.index(median)
-
-        # left = [i for i in point if i[axis] < median]
-        # right = [i for i in point if i[axis] > median]
+        left = [i for i in point if i[axis] < median]
+        right = [i for i in point if i[axis] > median]
         return Node(axis = axis,
                     val = point[index],
-                    left = self.fit(point=point[:index], depth=depth+1),
-                    right = self.fit(point=point[index+1:], depth=depth+1))
+                    left = self.fit(point=left, depth=depth+1),
+                    right = self.fit(point=right, depth=depth+1))
 
     def find_median(self, l, r, a, index):
         i,j = l,r
@@ -46,9 +45,9 @@ class KDtree(object):
                 a[i],a[j] = a[j],a[i]
                 i +=1
                 j -=1
-        if l<j and l < index < j:
+        if l<j and index < j:
             self.find_median(l, j, a, index)
-        elif i<r and i < index < r:
+        elif i<r and i < index:
             self.find_median(i, r, a, index)
         return a[index]
 
@@ -102,7 +101,7 @@ def main():
     train, test = load_data()
     x_train, y_train = train[:, :], train[:, 2]
     # x_test, y_test = test[:, :2], test[:, 2]  # 同上，但这里的y没有噪声
-    t = KDtree(x_train, k=3)
+    t = KDtree(x_train, k=1)
     # for i in x_train:
     #     print(t.find_Knearest(i)[-1])
     #     print()
