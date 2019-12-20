@@ -18,12 +18,13 @@ class KDtree(object):
         self.root = self.fit(point)
 
     def fit(self, point, depth=0):
-        if len(point) <= 0:
+        if len(point) <= 0 or len(point[0]) == 0:
             return None
         axis = depth % self.dim
         array = [p[axis] for p in point]
-        print(len(point))
+        # print(len(point))
         median = self.find_median(0, len(array)-1, array, len(array)//2)
+        median = median[len(array)//2]
         index = array.index(median)
         left = [i for i in point if i[axis] < median]
         right = [i for i in point if i[axis] > median]
@@ -34,7 +35,7 @@ class KDtree(object):
 
     def find_median(self, l, r, a, index):
         i,j = l,r
-        mid = l + (r-l)>>1
+        mid = l + (r-l)//2
         x = a[mid]
         while (i<=j):
             while a[i] < x:
@@ -45,11 +46,11 @@ class KDtree(object):
                 a[i],a[j] = a[j],a[i]
                 i +=1
                 j -=1
-        if l<j and index < j:
-            self.find_median(l, j, a, index)
-        elif i<r and i < index:
-            self.find_median(i, r, a, index)
-        return a[index]
+        if l<j and index <= j:
+            a = self.find_median(l, j, a, index)
+        elif i<r and i <= index:
+            a = self.find_median(i, r, a, index)
+        return a
 
     def find_Knearest(self, point, root=None):
         if root is None:
@@ -89,8 +90,8 @@ def gen_data(x1, x2):
 
 
 def load_data():
-    x1_train = np.linspace(0, 50, 60)
-    x2_train = np.linspace(-10, 10, 60)
+    x1_train = np.linspace(0, 50, 500)
+    x2_train = np.linspace(-10, 10, 500)
     data_train = [[x1, x2, gen_data(x1, x2) + np.random.random(1)[0] - 0.5] for x1, x2 in zip(x1_train, x2_train)]
     x1_test = np.linspace(0, 50, 100) + np.random.random(100) * 0.5
     x2_test = np.linspace(-10, 10, 100) + 0.02 * np.random.random(100)
@@ -101,7 +102,7 @@ def main():
     train, test = load_data()
     x_train, y_train = train[:, :], train[:, 2]
     # x_test, y_test = test[:, :2], test[:, 2]  # 同上，但这里的y没有噪声
-    t = KDtree(x_train, k=1)
+    t = KDtree(x_train, k=3)
     # for i in x_train:
     #     print(t.find_Knearest(i)[-1])
     #     print()
@@ -118,7 +119,10 @@ def main():
     return 0
 if __name__ == "__main__":
     main()
-    # t = KDtree()
-    # a = [3,2,1,5,4,3,2]
+    # t = KDtree([[]],1)
+    # a = [3,2,1,5,4,3,2] # 1,2,2,3,3,4,5
+    # a = [4,5,6,3,6,8,4] # 3,4,4,5,6,6,8
+    # a = [0,2,1,1,5,6,7] # 0,1,1,2,5,6,7
     # s = t.find_median(0, len(a)-1, a, len(a)//2)
+    # s = s[len(a)//2]
     # print(s)
