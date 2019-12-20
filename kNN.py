@@ -65,18 +65,18 @@ class KDtree(object):
 
         dis = sum(list(map(lambda x,y : abs(x-y), root.point, point)))
         if len(self.Kbest) < self.k:
-            heapq.heappush(self.Kbest,(dis, root.point))
+            heapq.heappush(self.Kbest,(-dis, root.point))
         # print(self.Kbest)
         # print(heapq.nlargest(1, self.Kbest, lambda d:d[0])[0][0])
         # print()
-        if dis < heapq.nlargest(1, self.Kbest, lambda d:d[0])[0][0]:
-            self.Kbest.pop(-1)
-            heapq.heappush(self.Kbest, (dis, root.point))
+        if dis < abs(heapq.nsmallest(1, self.Kbest, lambda d:d[0])[0][0]):
+            heapq.heappop(self.Kbest)
+            heapq.heappush(self.Kbest, (-dis, root.point))
 
         # if len(self.Kbest) == 0 or dis < self.Kbest[0]:
         #     self.Kbest = (dis, point)
 
-        if abs(root.point[root.axis]-point[root.axis]) < heapq.nlargest(1, self.Kbest, lambda d:d[0])[0][0]:
+        if abs(root.point[root.axis]-point[root.axis]) < abs(heapq.nsmallest(1, self.Kbest, lambda d:d[0])[0][0]):
             if root.right is not None and point[root.axis] < root.point[root.axis]:
                 self.find_Knearest(point, root=root.right)
             elif root.left is not None and point[root.axis] >= root.point[root.axis]:
@@ -102,7 +102,7 @@ def main():
     train, test = load_data()
     x_train, y_train = train[:, :], train[:, 2]
     # x_test, y_test = test[:, :2], test[:, 2]  # 同上，但这里的y没有噪声
-    t = KDtree(x_train, k=3)
+    t = KDtree(x_train, k=10)
     # for i in x_train:
     #     print(t.find_Knearest(i)[-1])
     #     print()
